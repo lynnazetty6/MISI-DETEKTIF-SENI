@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misi Detektif Seni Bersama Omar dan Hana</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Fredoka & Quicksand for Kid-friendly UI -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandYellow: '#FFD166',
+                        brandBlue: '#118AB2',
+                        brandPink: '#EF476F',
+                        brandGreen: '#06D6A0',
+                        brandPurple: '#8338EC',
+                        brandLightBg: '#F8F9FA'
+                    },
+                    fontFamily: {
+                        fredoka: ['Fredoka', 'sans-serif'],
+                        quicksand: ['Quicksand', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #e0f7fa 0%, #fff9c4 50%, #f3e5f5 100%);
+            min-height: 100vh;
+        }
+        
+        .font-title {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        /* Smooth bounce & float animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(1deg); }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 8px rgba(255,209,102,0.6)); }
+            50% { transform: scale(1.03); filter: drop-shadow(0 0 15px rgba(255,209,102,0.9)); }
+        }
+
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .animate-glow {
+            animation: pulseGlow 2s infinite;
+        }
+
+        /* Custom star animation for correct answer */
+        @keyframes starPop {
+            0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+            70% { transform: scale(1.2) rotate(10deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .star-pop {
+            animation: starPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .option-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Custom scrollbar for overlay modals */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen text-slate-800 antialiased selection:bg-yellow-300">
+
+    <!-- TOP HEADER / NAV BAR -->
+    <header class="bg-white/80 backdrop-blur-md border-b-4 border-amber-300 sticky top-0 z-30 px-4 py-3 shadow-sm">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-amber-400 p-2 rounded-2xl shadow-inner text-white flex items-center justify-center">
+                    <i class="fa-solid fa-magnifying-glass text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-title text-lg md:text-xl font-bold text-sky-900 tracking-wide leading-tight">
+                        MISI DETEKTIF SENI
+                    </h1>
+                    <p class="text-xs text-slate-500 font-semibold">Pendidikan Seni Visual Tahun 4</p>
+                </div>
+            </div>
+            
+            <!-- Badge Status -->
+            <div class="flex items-center gap-2">
+                <!-- Audio Toggle Button -->
+                <button id="audio-toggle-btn" onclick="toggleAudio()" class="flex items-center gap-1.5 bg-amber-100 hover:bg-amber-200 border-2 border-amber-300 text-amber-800 px-3 py-1 rounded-full text-xs font-bold transition">
+                    <i id="audio-icon" class="fa-solid fa-volume-high"></i>
+                    <span id="audio-text" class="hidden sm:inline">Bunyi ON</span>
+                </button>
+                <div id="header-badge" class="hidden md:flex items-center gap-2 bg-purple-100 border-2 border-purple-300 px-3 py-1 rounded-full text-purple-700 text-xs font-bold">
+                    <i class="fa-solid fa-palette"></i> Pre-Pualaman
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="flex-grow flex items-center justify-center p-3 sm:p-6 md:p-8">
+        <div class="w-full max-w-3xl bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border-4 border-white overflow-hidden relative min-h-[520px] flex flex-col justify-between">
+            
+            <!-- Decorative Background Elements -->
+            <div class="absolute -top-12 -left-12 w-32 h-32 bg-yellow-200/50 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="absolute -bottom-12 -right-12 w-36 h-36 bg-pink-200/50 rounded-full blur-2xl pointer-events-none"></div>
+
+            <!-- ========================================== -->
+            <!-- 1. HALAMAN PEMBUKA (WELCOME SCREEN) -->
+            <!-- ========================================== -->
+            <section id="welcome-screen" class="p-6 md:p-10 flex flex-col items-center text-center my-auto transition-opacity duration-300">
+                
+                <!-- Title Badge -->
+                <div class="inline-block bg-sky-100 text-sky-800 text-xs md:text-sm font-bold px-4 py-1.5 rounded-full mb-4 border border-sky-300 shadow-sm">
+                    🔍 Aktiviti Pengetahuan Sedia Ada
+                </div>
+
+                <h2 class="font-title text-2xl md:text-4xl font-extrabold text-slate-800 mb-3 leading-snug">
+                    MISI DETEKTIF SENI <br class="hidden sm:block"/>
+                    <span class="text-amber-500">BERSAMA OMAR DAN HANA</span>
+                </h2>
+
+                <!-- Character Visual Area -->
+                <div class="flex items-center justify-center gap-4 my-4 relative w-full max-w-md">
+                    <!-- Omar Canvas/SVG -->
+                    <div class="relative group">
+                        <div id="omar-avatar-container" class="w-32 h-32 sm:w-40 sm:h-40 bg-sky-100 border-4 border-sky-400 rounded-3xl flex items-center justify-center shadow-lg overflow-hidden animate-float">
+                            <!-- Custom Vector Artwork matching official Omar -->
+                            <svg class="w-full h-full p-1" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="100" cy="100" r="95" fill="#38BDF8"/>
+                                <!-- Blue Cap -->
+                                <path d="M45 75 C45 35, 155 35, 155 75 Z" fill="#0284C7"/>
+                                <path d="M35 75 Q100 60 165 75 L175 83 Q100 68 25 83 Z" fill="#0369A1"/>
+                                <!-- Brown Hair -->
+                                <path d="M50 75 Q80 85 100 65 Q130 85 150 75 C155 90, 145 100, 140 105 C135 80, 110 85, 100 75 C85 85, 65 80, 60 105 C55 100, 45 90, 50 75 Z" fill="#5C2C16"/>
+                                <!-- Face -->
+                                <ellipse cx="100" cy="115" rx="46" ry="42" fill="#FFE2C7"/>
+                                <!-- Large Brown Eyes -->
+                                <ellipse cx="80" cy="110" rx="11" ry="14" fill="#3D1E0B"/>
+                                <ellipse cx="120" cy="110" rx="11" ry="14" fill="#3D1E0B"/>
+                                <circle cx="77" cy="105" r="4" fill="white"/>
+                                <circle cx="117" cy="105" r="4" fill="white"/>
+                                <circle cx="82" cy="114" r="2" fill="white"/>
+                                <circle cx="122" cy="114" r="2" fill="white"/>
+                                <!-- Eyebrows -->
+                                <path d="M70 92 Q80 87 90 92" stroke="#5C2C16" stroke-width="3" stroke-linecap="round" fill="none"/>
+                                <path d="M110 92 Q120 87 130 92" stroke="#5C2C16" stroke-width="3" stroke-linecap="round" fill="none"/>
+                                <!-- Smile -->
+                                <path d="M86 132 Q100 144 114 132" stroke="#3D1E0B" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+                                <!-- Red Hoodie Body -->
+                                <path d="M55 155 C55 140, 145 140, 145 155 L155 200 L45 200 Z" fill="#EF4444"/>
+                                <!-- Hoodie Drawstrings -->
+                                <path d="M90 155 L88 175" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                                <path d="M110 155 L112 175" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <span class="absolute -bottom-2.5 left-1/2 -translate-x-1/2 bg-sky-600 text-white text-xs font-bold px-3 py-0.5 rounded-full shadow border border-white">OMAR</span>
+                    </div>
+
+                    <!-- Hana Canvas/SVG -->
+                    <div class="relative group">
+                        <div id="hana-avatar-container" class="w-32 h-32 sm:w-40 sm:h-40 bg-pink-100 border-4 border-pink-400 rounded-3xl flex items-center justify-center shadow-lg overflow-hidden animate-float" style="animation-delay: 0.5s;">
+                            <!-- Custom Vector Artwork matching official Hana -->
+                            <svg class="w-full h-full p-1" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="100" cy="100" r="95" fill="#F472B6"/>
+                                <!-- Yellow Hair Ribbons/Bows -->
+                                <path d="M50 48 C40 30, 65 25, 75 45 Z" fill="#EAB308"/>
+                                <path d="M150 48 C160 30, 135 25, 125 45 Z" fill="#EAB308"/>
+                                <!-- Short Brown Hair -->
+                                <path d="M40 90 C35 50, 165 50, 160 90 C165 115, 150 125, 145 120 C140 70, 60 70, 55 120 C50 125, 35 115, 40 90 Z" fill="#5C2C16"/>
+                                <path d="M60 75 Q100 88 140 75 Q100 65 60 75 Z" fill="#421E0A"/>
+                                <!-- Face -->
+                                <ellipse cx="100" cy="118" rx="44" ry="40" fill="#FFE2C7"/>
+                                <!-- Large Brown Eyes -->
+                                <ellipse cx="80" cy="112" rx="10" ry="13" fill="#3D1E0B"/>
+                                <ellipse cx="120" cy="112" rx="10" ry="13" fill="#3D1E0B"/>
+                                <circle cx="77" cy="107" r="3.5" fill="white"/>
+                                <circle cx="117" cy="107" r="3.5" fill="white"/>
+                                <circle cx="82" cy="115" r="1.8" fill="white"/>
+                                <circle cx="122" cy="115" r="1.8" fill="white"/>
+                                <!-- Cheeks -->
+                                <ellipse cx="70" cy="122" rx="5" ry="3" fill="#F43F5E" opacity="0.3"/>
+                                <ellipse cx="130" cy="122" rx="5" ry="3" fill="#F43F5E" opacity="0.3"/>
+                                <!-- Smile -->
+                                <path d="M88 132 Q100 142 112 132" stroke="#3D1E0B" stroke-width="3" stroke-linecap="round" fill="none"/>
+                                <!-- Cyan Pinafore Dress with Yellow Heart -->
+                                <path d="M55 158 L65 145 L135 145 L145 158 L155 200 L45 200 Z" fill="#06B6D4"/>
+                                <!-- White Inner Shirt Sleeves -->
+                                <path d="M40 160 C40 160, 58 148, 65 148 L60 180 Z" fill="white"/>
+                                <path d="M160 160 C160 160, 142 148, 135 148 L140 180 Z" fill="white"/>
+                                <!-- Yellow Heart Badge -->
+                                <path d="M100 162 C97 157, 90 157, 90 163 C90 168, 100 174, 100 174 C100 174, 110 168, 110 163 C110 157, 103 157, 100 162 Z" fill="#EAB308"/>
+                            </svg>
+                        </div>
+                        <span class="absolute -bottom-2.5 left-1/2 -translate-x-1/2 bg-pink-600 text-white text-xs font-bold px-3 py-0.5 rounded-full shadow border border-white">HANA</span>
+                    </div>
+                </div>
+
+                <!-- Dialogue / Speech Bubble -->
+                <div class="bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 my-2 max-w-lg text-slate-700 text-sm md:text-base leading-relaxed shadow-sm relative">
+                    <i class="fa-solid fa-quote-left text-amber-300 text-xl absolute top-2 left-3 opacity-50"></i>
+                    <p class="px-3">
+                        “Hai, kawan-kawan! Omar dan Hana memerlukan bantuan kamu untuk menyelesaikan <strong>Misi Detektif Seni</strong>! Mari kita uji pengetahuan tentang warna, jalinan, ruang serta alat dan bahan seni sebelum meneroka dunia <strong>Teknik Pualaman</strong>!”
+                    </p>
+                </div>
+
+                <!-- Info Cards Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full max-w-lg my-4 text-xs font-semibold">
+                    <div class="bg-slate-100 p-2.5 rounded-xl border border-slate-200">
+                        <span class="block text-slate-400 text-[10px] uppercase">Mata Pelajaran</span>
+                        <span class="text-slate-800">P. Seni Visual</span>
+                    </div>
+                    <div class="bg-slate-100 p-2.5 rounded-xl border border-slate-200">
+                        <span class="block text-slate-400 text-[10px] uppercase">Tahun</span>
+                        <span class="text-slate-800">4</span>
+                    </div>
+                    <div class="bg-slate-100 p-2.5 rounded-xl border border-slate-200">
+                        <span class="block text-slate-400 text-[10px] uppercase">Aktiviti</span>
+                        <span class="text-slate-800">Pengetahuan Sedia Ada</span>
+                    </div>
+                    <div class="bg-slate-100 p-2.5 rounded-xl border border-slate-200">
+                        <span class="block text-slate-400 text-[10px] uppercase">Bil. Soalan</span>
+                        <span class="text-slate-800">6 Soalan</span>
+                    </div>
+                </div>
+
+                <!-- Start Button -->
+                <button id="start-btn" onclick="startQuiz()" class="animate-glow w-full sm:w-auto mt-2 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white font-title text-xl font-bold py-4 px-10 rounded-2xl shadow-lg border-b-4 border-orange-700 active:translate-y-1 active:border-b-0 transition duration-150 flex items-center justify-center gap-3 mx-auto">
+                    <span>MULA MISI!</span>
+                    <i class="fa-solid fa-rocket text-xl"></i>
+                </button>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- 2. HALAMAN KUIZ (QUIZ CONTAINER) -->
+            <!-- ========================================== -->
+            <section id="quiz-screen" class="hidden p-5 md:p-8 flex-col justify-between h-full flex-grow">
+                
+                <!-- Progress Header -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span id="question-tracker" class="font-title text-sm md:text-base font-bold text-sky-800 bg-sky-100 px-3 py-1 rounded-lg border border-sky-200">
+                            Soalan 1 daripada 6
+                        </span>
+                        <span id="score-tracker" class="font-title text-sm font-bold text-amber-600 bg-amber-50 px-3 py-1 rounded-lg border border-amber-200 flex items-center gap-1.5">
+                            <i class="fa-solid fa-star text-amber-400"></i> Markah: 0
+                        </span>
+                    </div>
+
+                    <!-- Progress Bar Container -->
+                    <div class="w-full bg-slate-200 h-3.5 rounded-full overflow-hidden p-0.5 border border-slate-300">
+                        <div id="progress-bar" class="bg-gradient-to-r from-amber-400 to-emerald-400 h-full rounded-full transition-all duration-500 ease-out" style="width: 16.66%;"></div>
+                    </div>
+                </div>
+
+                <!-- Question Box -->
+                <div class="my-4 bg-slate-50 border-2 border-slate-200 rounded-2xl p-5 md:p-6 shadow-sm relative">
+                    <!-- Helper Character Badge -->
+                    <div class="flex items-center gap-3 mb-3 pb-3 border-b border-slate-200">
+                        <div id="quiz-character-icon" class="w-10 h-10 rounded-full bg-amber-100 border-2 border-amber-400 flex items-center justify-center font-bold text-amber-800 text-sm overflow-hidden flex-shrink-0">
+                            <!-- Dynamic SVG inserted via JS -->
+                        </div>
+                        <div>
+                            <h3 id="question-category" class="font-title text-xs font-bold text-amber-600 uppercase tracking-wider">
+                                CATEGORY
+                            </h3>
+                            <p id="character-hint" class="text-xs text-slate-500">Omar dan Hana sedia membantu!</p>
+                        </div>
+                    </div>
+
+                    <h2 id="question-text" class="text-base sm:text-lg md:text-xl font-bold text-slate-800 leading-snug">
+                        Teks soalan akan dipaparkan di sini...
+                    </h2>
+                </div>
+
+                <!-- Options List (A, B, C) -->
+                <div id="options-container" class="space-y-3 mb-4">
+                    <!-- Buttons inserted dynamically by JavaScript -->
+                </div>
+
+                <!-- Feedback Banner / Message Overlay -->
+                <div id="feedback-container" class="hidden rounded-2xl p-4 mb-4 transition-all duration-300 flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div id="feedback-icon" class="text-2xl sm:text-3xl"></div>
+                        <div>
+                            <p id="feedback-title" class="font-title font-bold text-base sm:text-lg leading-tight"></p>
+                            <p id="feedback-subtitle" class="text-xs sm:text-sm font-medium opacity-90"></p>
+                        </div>
+                    </div>
+                    <div id="star-animation-slot" class="hidden sm:block">
+                        <!-- Star Pop Animation on Correct Answer -->
+                        <i class="fa-solid fa-star text-amber-400 text-3xl star-pop"></i>
+                    </div>
+                </div>
+
+                <!-- Bottom Controls Bar -->
+                <div class="pt-2 border-t border-slate-100 flex justify-end">
+                    <button id="next-btn" onclick="nextQuestion()" disabled class="bg-slate-300 text-slate-500 font-title font-bold py-3 px-6 rounded-xl shadow cursor-not-allowed transition duration-200 flex items-center gap-2">
+                        <span>SOALAN SETERUSNYA</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- 3. HALAMAN KEPUTUSAN (RESULTS SCREEN) -->
+            <!-- ========================================== -->
+            <section id="result-screen" class="hidden p-6 md:p-10 flex-col items-center text-center my-auto">
+                
+                <div class="inline-block bg-emerald-100 text-emerald-800 text-xs md:text-sm font-bold px-4 py-1 rounded-full mb-3 border border-emerald-300">
+                    🎉 Misi Selesai!
+                </div>
+
+                <h2 class="font-title text-3xl md:text-4xl font-extrabold text-slate-800 mb-2">
+                    TAHNIAH, DETEKTIF SENI!
+                </h2>
+
+                <!-- Character Reward Visual -->
+                <div class="flex justify-center items-center gap-2 my-2">
+                    <div id="stars-display" class="flex gap-2 text-3xl md:text-4xl text-amber-400 my-2">
+                        <!-- Dynamic Stars via JS -->
+                    </div>
+                </div>
+
+                <!-- Score Card Container -->
+                <div class="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200 rounded-2xl p-6 my-3 w-full max-w-md shadow-sm">
+                    <div class="grid grid-cols-2 gap-4 divide-x divide-amber-200">
+                        <div>
+                            <span class="block text-xs font-bold text-slate-400 uppercase">Jumlah Markah</span>
+                            <span id="final-score" class="font-title text-3xl md:text-4xl font-bold text-amber-600">0 / 6</span>
+                        </div>
+                        <div>
+                            <span class="block text-xs font-bold text-slate-400 uppercase">Pencapaian</span>
+                            <span id="final-percentage" class="font-title text-3xl md:text-4xl font-bold text-emerald-600">0%</span>
+                        </div>
+                    </div>
+                    <p id="correct-count-text" class="text-xs text-slate-500 font-semibold mt-3 pt-2 border-t border-amber-200/60">
+                        Kamu menjawab 0 daripada 6 soalan dengan betul pada percubaan pertama.
+                    </p>
+                </div>
+
+                <!-- Motivation Message Box -->
+                <div id="motivation-box" class="bg-sky-50 border border-sky-200 rounded-2xl p-4 max-w-md w-full mb-6">
+                    <div class="flex items-center gap-3 justify-center mb-1">
+                        <i class="fa-solid fa-comment-dots text-sky-500"></i>
+                        <span class="font-title text-sm font-bold text-sky-800">Mesej Omar & Hana:</span>
+                    </div>
+                    <p id="motivation-text" class="text-sm md:text-base font-semibold text-slate-700">
+                        "Hebat! Kamu Detektif Seni yang cemerlang!"
+                    </p>
+                </div>
+
+                <!-- Action Buttons Grid -->
+                <div class="flex flex-col sm:flex-row gap-3 w-full max-w-md">
+                    <button onclick="restartQuiz()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-title font-bold py-3 px-5 rounded-xl transition duration-150 flex items-center justify-center gap-2 border-b-2 border-slate-400">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span>CUBA LAGI</span>
+                    </button>
+
+                    <button onclick="openPualamanLink()" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-title font-bold py-3 px-5 rounded-xl transition duration-150 shadow-md border-b-4 border-emerald-700 flex items-center justify-center gap-2">
+                        <span>TEROKA TEKNIK PUALAMAN</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                    </button>
+                </div>
+
+                <p class="text-[11px] text-slate-400 mt-4">
+                    “Syabas! Sekarang, mari kita kenali definisi, konsep dan ciri-ciri Teknik Pualaman!”
+                </p>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="py-3 text-center text-xs text-slate-500 font-medium">
+        Pendidikan Seni Visual Tahun 4 • Modul Moden & Interaktif
+    </footer>
+
+    <!-- MODAL POPUP FOR PUALAMAN LINK NOT SET -->
+    <div id="pualaman-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl border-4 border-amber-300">
+            <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                <i class="fa-solid fa-circle-info"></i>
+            </div>
+            <h3 class="font-title text-xl font-bold text-slate-800 mb-2">Maklumat Modul</h3>
+            <p class="text-sm text-slate-600 mb-5 leading-relaxed">
+                Pautan pembelajaran Teknik Pualaman belum ditetapkan oleh guru. Sila masukkan URL sasaran dalam pembolehubah <code class="bg-slate-100 px-1 py-0.5 rounded text-pink-600 font-mono text-xs">PUALAMAN_URL</code> pada kod JS.
+            </p>
+            <button onclick="closeModal()" class="w-full bg-amber-400 hover:bg-amber-500 text-slate-900 font-title font-bold py-2.5 px-4 rounded-xl shadow">
+                Faham
+            </button>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT LOGICAL ENGINE -->
+    <!-- ========================================== -->
+    <script>
+        // CONFIGURATION: Set your Canva or learning link here
+        const PUALAMAN_URL = ""; // e.g., "https://www.canva.com/..." Leave empty to trigger notice modal
+
+        // AUDIO SYNTHESIZER ENGINE (Web Audio API - No external MP3 files needed)
+        let audioEnabled = true;
+        let audioCtx = null;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) {
+                    audioCtx = new AudioContext();
+                }
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            const audioIcon = document.getElementById('audio-icon');
+            const audioText = document.getElementById('audio-text');
+            const audioBtn = document.getElementById('audio-toggle-btn');
+
+            if (audioEnabled) {
+                audioIcon.className = "fa-solid fa-volume-high";
+                audioText.innerText = "Bunyi ON";
+                audioBtn.className = "flex items-center gap-1.5 bg-amber-100 hover:bg-amber-200 border-2 border-amber-300 text-amber-800 px-3 py-1 rounded-full text-xs font-bold transition";
+                playClickSound();
+            } else {
+                audioIcon.className = "fa-solid fa-volume-xmark";
+                audioText.innerText = "Bunyi OFF";
+                audioBtn.className = "flex items-center gap-1.5 bg-slate-200 border-2 border-slate-300 text-slate-500 px-3 py-1 rounded-full text-xs font-bold transition";
+            }
+        }
+
+        // Play Click Sound
+        function playClickSound() {
+            if (!audioEnabled) return;
+            const ctx = getAudioContext();
+            if (!ctx) return;
+
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(400, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.08);
+
+            gain.gain.setValueAtTime(0.15, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start();
+            osc.stop(ctx.currentTime + 0.08);
+        }
+
+        // Play Correct Answer Fanfare Sound
+        function playCorrectSound() {
+            if (!audioEnabled) return;
+            const ctx = getAudioContext();
+            if (!ctx) return;
+
+            const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+            notes.forEach((freq, index) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, ctx.currentTime + index * 0.09);
+
+                gain.gain.setValueAtTime(0.2, ctx.currentTime + index * 0.09);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + index * 0.09 + 0.25);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start(ctx.currentTime + index * 0.09);
+                osc.stop(ctx.currentTime + index * 0.09 + 0.25);
+            });
+        }
+
+        // Play Wrong Answer Buzz Sound
+        function playWrongSound() {
+            if (!audioEnabled) return;
+            const ctx = getAudioContext();
+            if (!ctx) return;
+
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(180, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(110, ctx.currentTime + 0.25);
+
+            gain.gain.setValueAtTime(0.15, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start();
+            osc.stop(ctx.currentTime + 0.25);
+        }
+
+        // QUIZ DATA DATASET (6 STANDARD QUESTIONS)
+        const quizData = [
+            {
+                id: 1,
+                title: "DETEKTIF WARNA",
+                character: "omar",
+                question: "Omar mahu mengenal warna asas. Antara pilihan berikut, yang manakah merupakan tiga warna asas yang lazim dipelajari dalam Pendidikan Seni Visual?",
+                options: [
+                    "Merah, kuning dan biru",
+                    "Hijau, ungu dan jingga",
+                    "Hitam, putih dan kelabu"
+                ],
+                correct: 0 // Index 0 = A
+            },
+            {
+                id: 2,
+                title: "MISI JALINAN",
+                character: "hana",
+                question: "Hana menyentuh permukaan kulit pokok dan mendapati permukaan itu terasa kasar. Unsur seni apakah yang sedang diperhatikannya?",
+                options: [
+                    "Ruang",
+                    "Jalinan",
+                    "Bentuk"
+                ],
+                correct: 1 // Index 1 = B
+            },
+            {
+                id: 3,
+                title: "KENALI ALAT SENI",
+                character: "omar",
+                question: "Omar mahu menyapu warna pada kertas untuk menghasilkan sebuah karya. Alat manakah yang sesuai digunakan?",
+                options: [
+                    "Berus lukisan",
+                    "Pembaris sahaja",
+                    "Pemadam"
+                ],
+                correct: 0 // Index 0 = A
+            },
+            {
+                id: 4,
+                title: "DETEKTIF RUANG",
+                character: "hana",
+                question: "Hana melukis sebatang pokok di bahagian hadapan dan gunung di bahagian belakang gambar. Unsur seni apakah yang membantu menunjukkan kedudukan objek tersebut?",
+                options: [
+                    "Garisan",
+                    "Jalinan",
+                    "Ruang"
+                ],
+                correct: 2 // Index 2 = C
+            },
+            {
+                id: 5,
+                title: "CARI BAHAN SENI",
+                character: "omar",
+                question: "Omar ingin menghasilkan karya seni menggunakan warna. Antara pilihan berikut, yang manakah merupakan gabungan bahan asas yang sesuai untuk aktiviti menggambar?",
+                options: [
+                    "Kertas dan warna",
+                    "Sudu dan garpu sahaja",
+                    "Beg dan kasut"
+                ],
+                correct: 0 // Index 0 = A
+            },
+            {
+                id: 6,
+                title: "CABARAN KREATIVITI",
+                character: "hana",
+                question: "Hana mahu menghasilkan corak yang menarik untuk karya seninya. Apakah tindakan yang paling sesuai?",
+                options: [
+                    "Menggunakan satu warna tanpa meneroka pilihan lain",
+                    "Meneroka gabungan warna yang sesuai untuk menghasilkan corak kreatif",
+                    "Tidak perlu memikirkan susunan warna"
+                ],
+                correct: 1 // Index 1 = B
+            }
+        ];
+
+        // STATE MANAGEMENT VARIABLES
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answeredQuestions = new Set(); // Tracks indices where points were already awarded
+        let hasAnsweredCorrectlyThisQuestion = false;
+
+        // DOM ELEMENTS REFERENCES
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        
+        const questionTracker = document.getElementById('question-tracker');
+        const scoreTracker = document.getElementById('score-tracker');
+        const progressBar = document.getElementById('progress-bar');
+        
+        const questionCategory = document.getElementById('question-category');
+        const characterHint = document.getElementById('character-hint');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const quizCharacterIcon = document.getElementById('quiz-character-icon');
+        
+        const feedbackContainer = document.getElementById('feedback-container');
+        const feedbackIcon = document.getElementById('feedback-icon');
+        const feedbackTitle = document.getElementById('feedback-title');
+        const feedbackSubtitle = document.getElementById('feedback-subtitle');
+        const starAnimationSlot = document.getElementById('star-animation-slot');
+        
+        const nextBtn = document.getElementById('next-btn');
+
+        // CHARACTER SVG ICONS FOR QUIZ CARD
+        const omarSvgIcon = `<svg class="w-8 h-8" viewBox="0 0 200 200" fill="none"><circle cx="100" cy="100" r="90" fill="#38BDF8"/><path d="M45 75 C45 35, 155 35, 155 75 Z" fill="#0284C7"/><ellipse cx="100" cy="115" rx="46" ry="42" fill="#FFE2C7"/><ellipse cx="80" cy="110" rx="11" ry="14" fill="#3D1E0B"/><ellipse cx="120" cy="110" rx="11" ry="14" fill="#3D1E0B"/><circle cx="77" cy="105" r="4" fill="white"/><circle cx="117" cy="105" r="4" fill="white"/><path d="M86 132 Q100 144 114 132" stroke="#3D1E0B" stroke-width="4" fill="none"/></svg>`;
+        const hanaSvgIcon = `<svg class="w-8 h-8" viewBox="0 0 200 200" fill="none"><circle cx="100" cy="100" r="90" fill="#F472B6"/><path d="M50 48 C40 30, 65 25, 75 45 Z" fill="#EAB308"/><path d="M150 48 C160 30, 135 25, 125 45 Z" fill="#EAB308"/><ellipse cx="100" cy="118" rx="44" ry="40" fill="#FFE2C7"/><ellipse cx="80" cy="112" rx="10" ry="13" fill="#3D1E0B"/><ellipse cx="120" cy="112" rx="10" ry="13" fill="#3D1E0B"/><circle cx="77" cy="107" r="3.5" fill="white"/><circle cx="117" cy="107" r="3.5" fill="white"/><path d="M88 132 Q100 142 112 132" stroke="#3D1E0B" stroke-width="3.5" fill="none"/></svg>`;
+
+        // START QUIZ FUNCTION
+        function startQuiz() {
+            playClickSound();
+            welcomeScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            quizScreen.classList.add('flex');
+            
+            // Reset state
+            currentQuestionIndex = 0;
+            score = 0;
+            answeredQuestions.clear();
+            
+            loadQuestion();
+        }
+
+        // LOAD CURRENT QUESTION
+        function loadQuestion() {
+            const data = quizData[currentQuestionIndex];
+            hasAnsweredCorrectlyThisQuestion = false;
+
+            // Update Progress & Score Headers
+            questionTracker.innerText = `Soalan ${currentQuestionIndex + 1} daripada ${quizData.length}`;
+            scoreTracker.innerHTML = `<i class="fa-solid fa-star text-amber-400"></i> Markah: ${score}`;
+            
+            const progressPercent = ((currentQuestionIndex + 1) / quizData.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            // Setup Character Badge
+            if (data.character === 'omar') {
+                quizCharacterIcon.innerHTML = omarSvgIcon;
+                characterHint.innerText = "Omar: 'Mari teka jawapan yang betul!'";
+            } else {
+                quizCharacterIcon.innerHTML = hanaSvgIcon;
+                characterHint.innerText = "Hana: 'Fikirkan unsur seni ini dengan teliti!'";
+            }
+
+            questionCategory.innerText = data.title;
+            questionText.innerText = data.question;
+
+            // Clear previous feedback and options
+            resetFeedback();
+            optionsContainer.innerHTML = '';
+
+            // Generate Option Buttons (A, B, C)
+            const labels = ['A', 'B', 'C'];
+            data.options.forEach((optText, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `option-btn w-full text-left p-4 rounded-2xl border-2 border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50/50 flex items-center gap-3 font-semibold text-slate-700 transition-all duration-150`;
+                btn.onclick = () => selectOption(idx);
+                
+                btn.innerHTML = `
+                    <span class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 border border-slate-300 font-title font-bold flex items-center justify-center flex-shrink-0 group-hover:bg-amber-400 group-hover:text-white transition">
+                        ${labels[idx]}
+                    </span>
+                    <span class="text-sm sm:text-base leading-snug">${optText}</span>
+                `;
+                optionsContainer.appendChild(btn);
+            });
+
+            // Disable Next Button until correct answer is chosen
+            disableNextButton();
+        }
+
+        // OPTION SELECTION LOGIC
+        function selectOption(selectedIndex) {
+            if (hasAnsweredCorrectlyThisQuestion) return; // Prevent clicking after already getting it right
+
+            const data = quizData[currentQuestionIndex];
+            const optionButtons = optionsContainer.children;
+
+            if (selectedIndex === data.correct) {
+                // --- CORRECT ANSWER ---
+                hasAnsweredCorrectlyThisQuestion = true;
+                playCorrectSound();
+
+                // Award score ONLY IF first correct attempt on this specific question
+                if (!answeredQuestions.has(currentQuestionIndex)) {
+                    score += 1;
+                    answeredQuestions.add(currentQuestionIndex);
+                    scoreTracker.innerHTML = `<i class="fa-solid fa-star text-amber-400"></i> Markah: ${score}`;
+                }
+
+                // Highlight correct button
+                optionButtons[selectedIndex].className = "option-btn w-full text-left p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-emerald-900 font-bold flex items-center gap-3 shadow-sm";
+                optionButtons[selectedIndex].querySelector('span').className = "w-8 h-8 rounded-xl bg-emerald-500 text-white font-title font-bold flex items-center justify-center flex-shrink-0";
+
+                // Show Success Feedback
+                showFeedback(
+                    true,
+                    "Tahniah! Jawapan kamu betul!",
+                    "Syabas, detektif! Kamu berjaya menyelesaikan soalan ini."
+                );
+
+                // Enable Next Question Button
+                enableNextButton();
+
+                // Disable all option buttons
+                Array.from(optionButtons).forEach(btn => btn.disabled = true);
+
+            } else {
+                // --- INCORRECT ANSWER ---
+                playWrongSound();
+
+                // Highlight incorrect choice
+                optionButtons[selectedIndex].className = "option-btn w-full text-left p-4 rounded-2xl border-2 border-rose-400 bg-rose-50 text-rose-800 font-medium flex items-center gap-3 opacity-90";
+                optionButtons[selectedIndex].querySelector('span').className = "w-8 h-8 rounded-xl bg-rose-400 text-white font-title font-bold flex items-center justify-center flex-shrink-0";
+
+                // Show Error Feedback & allow retry
+                showFeedback(
+                    false,
+                    "Belum tepat! Cuba lagi, kamu pasti boleh!",
+                    "Jangan berputus asa, pilih jawapan lain."
+                );
+            }
+        }
+
+        // SHOW FEEDBACK BANNER
+        function showFeedback(isCorrect, title, subtitle) {
+            feedbackContainer.classList.remove('hidden', 'bg-emerald-100', 'border-emerald-300', 'text-emerald-900', 'bg-rose-100', 'border-rose-300', 'text-rose-900');
+            
+            if (isCorrect) {
+                feedbackContainer.classList.add('bg-emerald-100', 'border-2', 'border-emerald-300', 'text-emerald-900');
+                feedbackIcon.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i>`;
+                starAnimationSlot.classList.remove('hidden');
+            } else {
+                feedbackContainer.classList.add('bg-rose-100', 'border-2', 'border-rose-300', 'text-rose-900');
+                feedbackIcon.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-500"></i>`;
+                starAnimationSlot.classList.add('hidden');
+            }
+
+            feedbackTitle.innerText = title;
+            feedbackSubtitle.innerText = subtitle;
+        }
+
+        function resetFeedback() {
+            feedbackContainer.classList.add('hidden');
+        }
+
+        function enableNextButton() {
+            nextBtn.disabled = false;
+            nextBtn.className = "bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white font-title font-bold py-3 px-6 rounded-xl shadow-md border-b-4 border-orange-700 active:translate-y-0.5 active:border-b-0 cursor-pointer transition duration-150 flex items-center gap-2";
+        }
+
+        function disableNextButton() {
+            nextBtn.disabled = true;
+            nextBtn.className = "bg-slate-200 text-slate-400 font-title font-bold py-3 px-6 rounded-xl shadow-none cursor-not-allowed transition duration-200 flex items-center gap-2 border-none";
+        }
+
+        // NEXT QUESTION OR SHOW RESULTS
+        function nextQuestion() {
+            playClickSound();
+            if (currentQuestionIndex < quizData.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        // DISPLAY FINAL RESULTS SCREEN
+        function showResults() {
+            playCorrectSound();
+            quizScreen.classList.add('hidden');
+            quizScreen.classList.remove('flex');
+            resultScreen.classList.remove('hidden');
+            resultScreen.classList.add('flex');
+
+            const percentage = Math.round((score / quizData.length) * 100);
+            
+            document.getElementById('final-score').innerText = `${score} / ${quizData.length}`;
+            document.getElementById('final-percentage').innerText = `${percentage}%`;
+            document.getElementById('correct-count-text').innerText = `Kamu menjawab ${score} daripada ${quizData.length} soalan dengan betul.`;
+
+            // Stars Display
+            const starsDisplay = document.getElementById('stars-display');
+            starsDisplay.innerHTML = '';
+            const starCount = Math.ceil((score / quizData.length) * 3); // 0 to 3 stars
+            for (let i = 0; i < 3; i++) {
+                if (i < starCount) {
+                    starsDisplay.innerHTML += `<i class="fa-solid fa-star text-amber-400 drop-shadow-md"></i>`;
+                } else {
+                    starsDisplay.innerHTML += `<i class="fa-regular fa-star text-slate-300"></i>`;
+                }
+            }
+
+            // Custom Motivation Message based on score
+            const motivationText = document.getElementById('motivation-text');
+            if (score === 6) {
+                motivationText.innerText = "“Hebat! Kamu Detektif Seni yang cemerlang!”";
+            } else if (score >= 4) {
+                motivationText.innerText = "“Bagus! Kamu semakin mahir mengenali unsur seni!”";
+            } else if (score >= 2) {
+                motivationText.innerText = "“Usaha yang baik! Mari belajar dan cuba lagi!”";
+            } else {
+                motivationText.innerText = "“Jangan berputus asa! Omar dan Hana akan membantu kamu belajar!”";
+            }
+        }
+
+        // RESTART QUIZ
+        function restartQuiz() {
+            playClickSound();
+            resultScreen.classList.add('hidden');
+            resultScreen.classList.remove('flex');
+            welcomeScreen.classList.remove('hidden');
+        }
+
+        // EXTERNAL MODULE LINK HANDLER
+        function openPualamanLink() {
+            if (PUALAMAN_URL && PUALAMAN_URL.trim() !== "") {
+                window.open(PUALAMAN_URL, '_blank');
+            } else {
+                document.getElementById('pualaman-modal').classList.remove('hidden');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('pualaman-modal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
